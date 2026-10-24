@@ -12,5 +12,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Vérifier la syntaxe JavaScript
+        run: |
+          node --check app.js
+          node --check sw.js
+          node --check recurrence.js
       - name: Vérifier les règles de dates
         run: TZ=Europe/Paris node --test tests/recurrence.test.cjs
