@@ -1,0 +1,16 @@
+name: Tests BOS REMIND
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Vérifier les règles de dates
+        run: TZ=Europe/Paris node --test tests/recurrence.test.cjs

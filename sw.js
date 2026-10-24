@@ -1,5 +1,5 @@
-const CACHE="bos-remind-v1";
-const FILES=["./","./index.html","./style.css","./app.js","./recurrence.js","./manifest.webmanifest","./icon.svg"];
+const CACHE="bos-remind-v2";
+const FILES=["./","./index.html","./style.css","./app.js","./recurrence.js","./manifest.webmanifest","./icon.svg","./icons/icon-192.png","./icons/icon-512.png"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting()));
 });
