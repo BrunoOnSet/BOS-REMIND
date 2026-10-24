@@ -11,10 +11,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2">
+  <link rel="stylesheet" href="./style.css?v=3">
   <title>BOS — REMIND</title>
   <script src="./recurrence.js?v=1" defer></script>
-  <script src="./app.js?v=2" defer></script>
+  <script src="./app.js?v=3" defer></script>
 </head>
 <body>
 <main class="shell">
@@ -75,7 +75,7 @@
     <label class="field"><span>TITRE DU RAPPEL</span><input id="reminderTitle" type="text" maxlength="140" placeholder="Ex. : Envoyer la facture" required autocomplete="off"></label>
     <div class="date-grid">
       <label class="field"><span>DATE</span><input id="reminderDate" type="date" required></label>
-      <label class="field"><span>HEURE</span><input id="reminderTime" type="time" required step="60"></label>
+      <label class="field"><span>HEURE</span><input id="reminderTime" type="text" inputmode="none" readonly required aria-haspopup="dialog" aria-controls="timeDialog" placeholder="HH:MM"></label>
     </div>
     <fieldset class="repeat-options"><legend>RÉPÉTITION</legend>
       <label class="repeat-row"><input id="monthly" type="checkbox"><span>Rappeler tous les mois</span></label>
@@ -85,6 +85,25 @@
     <p id="formError" class="form-error" role="alert" hidden></p>
     <button type="submit" class="primary-btn save-btn" id="saveButton">Créer le rappel</button>
   </form>
+</dialog>
+
+<!-- Sélecteur d’heure intégré : évite le débordement du cadran natif d’Android. -->
+<dialog id="timeDialog" class="time-dialog" aria-labelledby="timeDialogTitle">
+  <div class="time-dialog-content">
+    <div class="dialog-head">
+      <div><span class="eyebrow">BOS REMIND</span><h2 id="timeDialogTitle">Choisir l’heure</h2></div>
+      <button type="button" class="close-btn" id="closeTimeDialog" aria-label="Fermer">×</button>
+    </div>
+    <div class="time-preview" id="timePreview" aria-live="polite">09:00</div>
+    <div class="time-select-row">
+      <label class="time-select-field" for="timeHours"><span>HEURES</span><select id="timeHours" aria-label="Heures"></select></label>
+      <label class="time-select-field" for="timeMinutes"><span>MINUTES</span><select id="timeMinutes" aria-label="Minutes"></select></label>
+    </div>
+    <div class="time-dialog-actions">
+      <button type="button" class="secondary-btn" id="cancelTimeDialog">Annuler</button>
+      <button type="button" class="primary-btn" id="confirmTimeDialog">Valider</button>
+    </div>
+  </div>
 </dialog>
 </body>
 </html>

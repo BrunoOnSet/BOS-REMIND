@@ -141,23 +141,65 @@
   dialog.addEventListener("click",e=>{if(e.target===dialog)closeEditor();});
   $("monthly").addEventListener("change",e=>{if(e.target.checked)$("yearly").checked=false;});
   $("yearly").addEventListener("change",e=>{if(e.target.checked)$("monthly").checked=false;});
-  // Android/Chrome : toute la surface des champs DATE et HEURE ouvre le sélecteur natif.
-  // showPicker doit être appelé directement dans le geste utilisateur.
-  for(const id of ["reminderDate","reminderTime"]){
-    const field=$(id);
-    const openNativePicker=()=>{
-      field.focus({preventScroll:true});
-      if(typeof field.showPicker==="function"){
-        try{field.showPicker();}catch(_){ /* repli sur le comportement natif */ }
-      }
-    };
-    field.addEventListener("click",openNativePicker);
-    field.closest("label").addEventListener("click",event=>{
-      if(event.target===field)return;
-      event.preventDefault(); // Évite un deuxième clic simulé par <label>.
-      openNativePicker();
-    });
+  // La date conserve le sélecteur Android natif, ouvert depuis toute la zone.
+  const dateField=$("reminderDate");
+  function openDatePicker(){
+    dateField.focus({preventScroll:true});
+    if(typeof dateField.showPicker==="function"){
+      try{dateField.showPicker();}catch(_){ /* comportement natif de repli */ }
+    }
   }
+  dateField.addEventListener("click",openDatePicker);
+  dateField.closest("label").addEventListener("click",event=>{
+    if(event.target===dateField)return;
+    event.preventDefault();
+    openDatePicker();
+  });
+
+  // Le cadran natif des heures peut dépasser sur certains Android.
+  // Un sélecteur BOS intégré, sans clavier, remplace uniquement ce cadran.
+  const timeField=$("reminderTime");
+  const timeDialog=$("timeDialog");
+  const hourSelect=$("timeHours");
+  const minuteSelect=$("timeMinutes");
+  const pad2=n=>String(n).padStart(2,"0");
+  for(let hour=0;hour<24;hour++)hourSelect.add(new Option(pad2(hour),pad2(hour)));
+  for(let minute=0;minute<60;minute++)minuteSelect.add(new Option(pad2(minute),pad2(minute)));
+  function updateTimePreview(){
+    $("timePreview").textContent=hourSelect.value+":"+minuteSelect.value;
+  }
+  function openTimePicker(){
+    if(timeDialog.open)return;
+    const match=/^([01]\\d|2[0-3]):([0-5]\\d)$/.exec(timeField.value);
+    hourSelect.value=match?match[1]:"09";
+    minuteSelect.value=match?match[2]:"00";
+    updateTimePreview();
+    timeDialog.showModal();
+  }
+  timeField.addEventListener("click",openTimePicker);
+  timeField.addEventListener("keydown",event=>{
+    if(event.key==="Enter"||event.key===" "){
+      event.preventDefault();
+      openTimePicker();
+    }
+  });
+  timeField.closest("label").addEventListener("click",event=>{
+    if(event.target===timeField)return;
+    event.preventDefault();
+    openTimePicker();
+  });
+  hourSelect.addEventListener("change",updateTimePreview);
+  minuteSelect.addEventListener("change",updateTimePreview);
+  $("confirmTimeDialog").addEventListener("click",()=>{
+    timeField.value=hourSelect.value+":"+minuteSelect.value;
+    timeField.dispatchEvent(new Event("change",{bubbles:true}));
+    timeDialog.close();
+  });
+  $("cancelTimeDialog").addEventListener("click",()=>timeDialog.close());
+  $("closeTimeDialog").addEventListener("click",()=>timeDialog.close());
+  timeDialog.addEventListener("click",event=>{
+    if(event.target===timeDialog)timeDialog.close();
+  });
   $("themeButton").addEventListener("click",()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark"));
   setTheme(localStorage.getItem(THEME_KEY)==="dark"?"dark":"light");
 
