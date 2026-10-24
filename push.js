@@ -4,10 +4,16 @@
 const API="https://busesheskvlgpuewlskj.supabase.co/functions/v1/bos-remind";
 const STORAGE="bos-remind-data-v1",ID_KEY="bos-remind-device-id",TOKEN_KEY="bos-remind-device-token";
 const state=window.BOSPush={active:false,registered:false};
-let pending=false,working=false;
+let pending=false,working=false,startPromise=null;
 function bytes(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return a;}
 function b64url(str){return str.replace(/-/g,"+").replace(/_/g,"/");}
 function publicKey(value){const raw=atob(b64url(value));return Uint8Array.from(raw,c=>c.charCodeAt(0));}
+function sameApplicationKey(subscription,expected){
+ const old=subscription?.options?.applicationServerKey;
+ if(!old)return false;
+ const existing=new Uint8Array(old);
+ return existing.length===expected.length&&existing.every((byte,index)=>byte===expected[index]);
+}
 function getIdentity(){
  let id=localStorage.getItem(ID_KEY),token=localStorage.getItem(TOKEN_KEY);
  if(!id||!token){
@@ -43,6 +49,12 @@ async function flush(){
  finally{working=false;}
 }
 async function start(askPermission){
+ if(startPromise)return startPromise;
+ const task=activate(askPermission);
+ startPromise=task;
+ try{return await task;}finally{if(startPromise===task)startPromise=null;}
+}
+async function activate(askPermission){
  if(!navigator.serviceWorker||!window.PushManager||!window.Notification||!window.isSecureContext){
   status("Ce navigateur ne permet pas les notifications en arrière-plan.");return;
  }
@@ -52,16 +64,22 @@ async function start(askPermission){
   const config=await request("config",undefined,false);
   const registration=await navigator.serviceWorker.register("./sw.js");
   await navigator.serviceWorker.ready;
+  const expectedKey=publicKey(config.vapidPublic);
   let subscription=await registration.pushManager.getSubscription();
-  if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:publicKey(config.vapidPublic)});
+  if(subscription&&!sameApplicationKey(subscription,expectedKey)){
+    const removed=await subscription.unsubscribe();
+    if(!removed)throw new Error("Impossible de renouveler l’abonnement Push de ce téléphone");
+    subscription=null;
+  }
+  if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:expectedKey});
   await request("register",{subscription:subscription.toJSON()});
   state.active=true;state.registered=true;
   await flush();
-  status("Notifications en arrière-plan activées. Vos rappels sont enregistrés sur le serveur BOS REMIND et vérifiés chaque minute.");
+  status("Notifications en arrière-plan actives · serveur connecté. Vos rappels sont vérifiés chaque minute.");
  }catch(e){
   state.active=false;
   console.warn("BOS REMIND Push",e);
-  status("Activation des notifications en arrière-plan impossible : "+e.message+". Réessayez avec le bouton « Autoriser les notifications ».");
+  status("Activation en arrière-plan impossible : "+e.message+". Utilisez « Réessayer la connexion ».");
  }
 }
 window.addEventListener("bos-remind-saved",()=>{pending=true;void flush()});

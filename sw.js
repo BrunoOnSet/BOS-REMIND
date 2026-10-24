@@ -1,4 +1,4 @@
-const CACHE="bos-remind-v5";
+const CACHE="bos-remind-v6";
 const FILES=["./","./index.html","./style.css","./app.js","./push.js","./recurrence.js","./manifest.webmanifest","./icon.svg","./icons/icon-192.png","./icons/icon-512.png"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting()));

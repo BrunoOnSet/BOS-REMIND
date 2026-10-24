@@ -211,7 +211,8 @@
       granted?(window.BOSPush?.active?"Notifications en arrière-plan actives · serveur connecté":"Notifications autorisées · connexion serveur en cours"):
       Notification.permission==="denied"?"Notifications bloquées dans les réglages du navigateur.":
       "Notifications non autorisées pour le moment.";
-    $("enableNotifications").hidden=granted||!supported;
+    $("enableNotifications").hidden=!supported||(granted&&Boolean(window.BOSPush?.active));
+    $("enableNotifications").textContent=granted?"Réessayer la connexion":"Autoriser les notifications";
     $("testNotification").disabled=!granted;
   }
   let registrationPromise=null;
