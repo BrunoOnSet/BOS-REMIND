@@ -80,7 +80,8 @@
     $("dialogTitle").textContent=r?"Modifier le rappel":"Nouveau rappel";
     $("saveButton").textContent=r?"Enregistrer les modifications":"Créer le rappel";
     dialog.showModal();
-    $("reminderTitle").focus();
+    // Sur mobile, éviter l’ouverture immédiate du clavier qui réduit la place du dialogue.
+    if(!window.matchMedia("(max-width: 540px)").matches)$("reminderTitle").focus();
   }
   function closeEditor(){dialog.close();editingId=null;}
   function createId(){return globalThis.crypto&&crypto.randomUUID?crypto.randomUUID():"r-"+Date.now()+"-"+Math.random().toString(36).slice(2);}
@@ -140,6 +141,23 @@
   dialog.addEventListener("click",e=>{if(e.target===dialog)closeEditor();});
   $("monthly").addEventListener("change",e=>{if(e.target.checked)$("yearly").checked=false;});
   $("yearly").addEventListener("change",e=>{if(e.target.checked)$("monthly").checked=false;});
+  // Android/Chrome : toute la surface des champs DATE et HEURE ouvre le sélecteur natif.
+  // showPicker doit être appelé directement dans le geste utilisateur.
+  for(const id of ["reminderDate","reminderTime"]){
+    const field=$(id);
+    const openNativePicker=()=>{
+      field.focus({preventScroll:true});
+      if(typeof field.showPicker==="function"){
+        try{field.showPicker();}catch(_){ /* repli sur le comportement natif */ }
+      }
+    };
+    field.addEventListener("click",openNativePicker);
+    field.closest("label").addEventListener("click",event=>{
+      if(event.target===field)return;
+      event.preventDefault(); // Évite un deuxième clic simulé par <label>.
+      openNativePicker();
+    });
+  }
   $("themeButton").addEventListener("click",()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark"));
   setTheme(localStorage.getItem(THEME_KEY)==="dark"?"dark":"light");
 
