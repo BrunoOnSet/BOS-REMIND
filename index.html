@@ -14,7 +14,8 @@
   <link rel="stylesheet" href="./style.css?v=3">
   <title>BOS — REMIND</title>
   <script src="./recurrence.js?v=1" defer></script>
-  <script src="./app.js?v=3" defer></script>
+  <script src="./app.js?v=4" defer></script>
+  <script src="./push.js?v=1" defer></script>
 </head>
 <body>
 <main class="shell">
@@ -61,7 +62,7 @@
         <button type="button" id="enableNotifications" class="secondary-btn">Autoriser les notifications</button>
         <button type="button" id="testNotification" class="secondary-btn">Tester</button>
       </div>
-      <p class="notice"><strong>Version locale.</strong> Pour l’instant, une notification automatique peut s’afficher seulement pendant que l’application fonctionne à l’écran. Les rappels lorsque l’application est fermée nécessitent la mise en place du service push, non encore activé.</p>
+      <p class="notice" id="pushStatus">Pour recevoir les rappels avec l’application fermée, autorisez les notifications. Android doit également autoriser Chrome à fonctionner en arrière-plan.</p>
     </div>
   </section>
 

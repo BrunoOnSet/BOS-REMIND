@@ -19,3 +19,6 @@ Sans HTTPS ou localhost, les Service Workers et les notifications ne fonctionnen
 
 ## Prochaine étape technique
 Pour obtenir des notifications lorsque BOS REMIND est fermé : enregistrer les données sur un backend sécurisé, programmer le déclenchement des échéances sur serveur, envoyer les Web Push VAPID, enregistrer l'abonnement du téléphone, puis synchroniser les actions `DONE` et `AGAIN` depuis la notification. Ne pas ajouter de clé secrète de serveur au frontend.
+
+## Notifications Push (octobre 2026)
+Une fonction Supabase isolée `bos-remind` et un cron par minute envoient des notifications Web Push aux installations Android abonnées. L'abonnement est activé via le bouton **Autoriser les notifications** dans l'app. Chaque installation a son propre identifiant/token aléatoires stockés localement et envoyés uniquement à l'API HTTPS ; les tables serveur sont privées et protégées par RLS. Les rappels déjà créés sont synchronisés lors de l'activation. En cas de changement de téléphone ou de suppression des données Chrome, les rappels locaux ne sont pas restaurés automatiquement. L'heure de notification est soumise aux contraintes réseau/Android et à une précision de l'ordre de la minute. Les actions DONE/AGAIN ouvrent l'application pour synchroniser la modification.

@@ -18,7 +18,7 @@
     }catch(_){return [];}
   }
   function save(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(reminders));return true;}
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(reminders));window.dispatchEvent(new Event("bos-remind-saved"));return true;}
     catch(_){alert("Impossible d'enregistrer les rappels. Vérifiez l'espace de stockage du navigateur.");return false;}
   }
   const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -231,6 +231,7 @@
     await reg.showNotification(title,options);
   }
   async function notifyDue(){
+    if(window.BOSPush?.active)return;
     if(!("Notification" in window)||Notification.permission!=="granted")return;
     const due=reminders.filter(r=>overdue(r)&&r.notifiedAt!==r.dueAt);
     for(const r of due){
@@ -248,6 +249,7 @@
       await ensureWorker();
       await Notification.requestPermission();
       notificationState();await notifyDue();
+      window.dispatchEvent(new Event("bos-remind-permission"));
     }catch(err){alert("Impossible d'activer les notifications : "+err.message);}
   });
   $("testNotification").addEventListener("click",async()=>{
@@ -276,6 +278,7 @@
   }
   handleLaunchAction();
   notificationState();render();notifyDue();
+  window.addEventListener("bos-remind-push-state",notificationState);
   setInterval(()=>{render();notifyDue();},30000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden){render();notifyDue();}});
   window.addEventListener("storage",e=>{if(e.key===STORAGE_KEY){reminders=load();render();}});
