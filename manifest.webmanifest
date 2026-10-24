@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "BOS — REMIND",
+  "short_name": "BOS REMIND",
+  "description": "Vos rappels, sans bruit.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F5F5",
+  "theme_color": "#F4F5F5",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
