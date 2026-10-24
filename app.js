@@ -170,7 +170,7 @@
   }
   function openTimePicker(){
     if(timeDialog.open)return;
-    const match=/^([01]\\d|2[0-3]):([0-5]\\d)$/.exec(timeField.value);
+    const match=/^([01][0-9]|2[0-3]):([0-5][0-9])$/.exec(timeField.value);
     hourSelect.value=match?match[1]:"09";
     minuteSelect.value=match?match[2]:"00";
     updateTimePreview();
