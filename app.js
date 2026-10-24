@@ -208,7 +208,7 @@
     const granted=supported&&Notification.permission==="granted";
     $("notificationStatus").textContent=!supported?
       "Les notifications nécessitent Chrome et une connexion HTTPS.":
-      granted?"Notifications autorisées · mode local (application ouverte)":
+      granted?(window.BOSPush?.active?"Notifications en arrière-plan actives · serveur connecté":"Notifications autorisées · connexion serveur en cours"):
       Notification.permission==="denied"?"Notifications bloquées dans les réglages du navigateur.":
       "Notifications non autorisées pour le moment.";
     $("enableNotifications").hidden=granted||!supported;
